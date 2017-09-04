@@ -69,15 +69,23 @@ class CrackHash(OnlineHashCrack):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('target')
-    parser.add_argument('-f', '--found', default='found.txt')
-    parser.add_argument('-l', '--left', default='left.txt')
-    parser.add_argument('-s', '--submit', action='store_true')
-    parser.add_argument('-d', '--dictionary', default='dict.txt', help='Store '
-                        'list of passwords to be used as a dictionary in a '
-                        'hash cracker.')
-    parser.add_argument('-t', '--timeout', type=int, default='3')
-    parser.add_argument('-r', '--retry', type=int, default='3')
+    parser.add_argument('target', help='File containing md5 hashes.')
+    parser.add_argument('-f', '--found', default='found.txt', help='File to '
+                        'store found hashes, default is found.txt.')
+    parser.add_argument('-l', '--left', default='left.txt', help='File to '
+                        'store remaining hashes, default is left.txt.')
+    parser.add_argument('-s', '--submit', action='store_true',
+                        help='Enable submit mode, submits hash file to '
+                        'databases. The file should be in hash:passwd format, '
+                        'like in a hashcat potfile')
+    parser.add_argument('-d', '--dictionary', default='dict.txt', help='File '
+                        'to store list of passwords to be used as a dictionary '
+                        'in a hash cracker, .')
+    parser.add_argument('-t', '--timeout', type=int, default='3',
+                        help='HTTP timeout(in seconds) to be used for the API '
+                        'requests, default is 3')
+    parser.add_argument('-r', '--retry', type=int, default='3',
+                        help='Number of retries to attempt for HTTP requests.')
     args = parser.parse_args()
     online_hash_crackers = [Nitrxgen(args.timeout, args.retry),
                             CrackHash(args.timeout, args.retry)]
