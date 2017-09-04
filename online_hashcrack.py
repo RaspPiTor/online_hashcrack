@@ -1,31 +1,39 @@
-import requests
 import argparse
 import hashlib
 import random
-import time
+
+import requests
+
 
 class OnlineHashCrack():
     def __init__(self, user_agent='PythonOnlineHashCracker', timeout=3):
         self.timeout = timeout
         self.session = requests.Session()
         self.session.headers['User-Agent'] = user_agent
-    def _fetch(self, hashed):
-        raise None
+
+    def _fetch(self, _):
+        return None
+
     def get(self, hashed, retry=3):
-        for i in range(3):
+        for _ in range(3):
             result = self._fetch(hashed)
             if result is not None:
                 if hashlib.md5(result.encode()).hexdigest() == hashed:
                     return result
         return None
+
     def submit(self, hashed, result):
         if hashlib.md5(result.encode()).hexdigest() == hashed:
             self._submit(hashed, result)
+
     def _submit(self, hashed, result):
         pass
+
+
 class Nitrxgen(OnlineHashCrack):
     def __repr__(self):
         return 'Nitrxgen'
+
     def _fetch(self, hashed):
         try:
             r = self.session.get('https://www.nitrxgen.net/md5db/' + hashed,
@@ -33,9 +41,12 @@ class Nitrxgen(OnlineHashCrack):
             return r.text
         except Exception as error:
             print(error.with_traceback(None))
+
+
 class CrackHash(OnlineHashCrack):
     def __repr__(self):
         return 'CrackHash'
+
     def _fetch(self, hashed):
         try:
             r = self.session.get('https://crackhash.com/api.php?hash=' + hashed,
@@ -43,6 +54,7 @@ class CrackHash(OnlineHashCrack):
             return r.text
         except Exception as error:
             print(error.with_traceback(None))
+
     def _submit(self, hashed, result):
         try:
             r = self.session.get(
@@ -52,29 +64,29 @@ class CrackHash(OnlineHashCrack):
         except Exception as error:
             print(error.with_traceback(None))
 
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('target')
     parser.add_argument('-f', '--found', default='found.txt')
     parser.add_argument('-l', '--left', default='left.txt')
     parser.add_argument('-s', '--submit', action='store_true')
-    parser.add_argument('-d', '--dictionary', help='Store list of passwords to '
-                        'be used as a dictionary in a hash cracker.')
+    parser.add_argument('-d', '--dictionary', default='dict.txt', help='Store '
+                        'list of passwords to be used as a dictionary in a '
+                        'hash cracker.')
     parser.add_argument('-t', '--timeout', type=int, default='3')
     args = parser.parse_args()
     online_hash_crackers = [Nitrxgen(timeout=args.timeout),
                             CrackHash(timeout=args.timeout)]
     if args.submit:
         with open(args.target) as file:
-            for i in file.read().splitlines():
-                i = i.split(':')
-                if len(i) == 2:
-                    hashed, result = i
-                    if hashlib.md5(result.encode()).hexdigest() == hashed:
-                        print(i)
-                        for cracker in online_hash_crackers:
-                            cracker.submit(hashed, result)
-    else:  
+            data = file.read().splitlines()
+        for hashed, result in (i.split(':') for i in data if i.count(':') == 1):
+            if hashlib.md5(result.encode()).hexdigest() == hashed:
+                print(hashed, result)
+                for cracker in online_hash_crackers:
+                    cracker.submit(hashed, result)
+    else:
         with open(args.target) as file:
             hashes = set(file.read().splitlines())
         print('Starting')
@@ -101,9 +113,8 @@ def main():
             file.write('\n'.join(':'.join((i, success[i])) for i in success))
         with open(args.left, 'w') as file:
             file.write('\n'.join(i for i in hashes if i not in success))
-        if args.dictionary:
-            with open(args.dictionary, 'w') as file:
-                file.write('\n'.join(success[i] for i in success))
+        with open(args.dictionary, 'w') as file:
+            file.write('\n'.join(success[i] for i in success))
 
 
 if __name__ == '__main__':
