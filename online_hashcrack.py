@@ -41,7 +41,7 @@ class Nitrxgen(OnlineHashCrack):
                                  timeout=self.timeout)
             return r.text
         except Exception as error:
-            print(error.with_traceback(None))
+            print(error)
 
 
 class CrackHash(OnlineHashCrack):
@@ -54,7 +54,7 @@ class CrackHash(OnlineHashCrack):
                                  timeout=self.timeout)
             return r.text
         except Exception as error:
-            print(error.with_traceback(None))
+            print(error)
 
     def _submit(self, hashed, result):
         try:
@@ -63,7 +63,7 @@ class CrackHash(OnlineHashCrack):
                 % (hashed, result), timeout=self.timeout)
             print('Submitted:', hashed, result)
         except Exception as error:
-            print(error.with_traceback(None))
+            print(error)
 
 
 def main():
