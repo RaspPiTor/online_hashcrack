@@ -53,7 +53,6 @@ class CrackHash(OnlineHashCrack):
             print(error.with_traceback(None))
 
 def main():
-    online_hash_crackers = [Nitrxgen(), CrackHash()]
     parser = argparse.ArgumentParser()
     parser.add_argument('target')
     parser.add_argument('-f', '--found', default='found.txt')
@@ -61,7 +60,10 @@ def main():
     parser.add_argument('-s', '--submit', action='store_true')
     parser.add_argument('-d', '--dictionary', help='Store list of passwords to '
                         'be used as a dictionary in a hash cracker.')
+    parser.add_argument('-t', '--timeout', type=int, default='3')
     args = parser.parse_args()
+    online_hash_crackers = [Nitrxgen(timeout=args.timeout),
+                            CrackHash(timeout=args.timeout)]
     if args.submit:
         with open(args.target) as file:
             for i in file.read().splitlines():
