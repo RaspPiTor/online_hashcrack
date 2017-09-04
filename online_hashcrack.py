@@ -15,7 +15,7 @@ class OnlineHashCrack():
         return None
 
     def get(self, hashed, retry=3):
-        for _ in range(3):
+        for _ in range(retry):
             result = self._fetch(hashed)
             if result is not None:
                 if hashlib.md5(result.encode()).hexdigest() == hashed:
