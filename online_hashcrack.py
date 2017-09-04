@@ -6,7 +6,8 @@ import requests
 
 
 class OnlineHashCrack():
-    def __init__(self, user_agent='PythonOnlineHashCracker', timeout=3):
+    def __init__(self, timeout=3, retry=3, user_agent='PythonOnlineHashCracker'):
+        self.retry = retry
         self.timeout = timeout
         self.session = requests.Session()
         self.session.headers['User-Agent'] = user_agent
@@ -14,8 +15,8 @@ class OnlineHashCrack():
     def _fetch(self, _):
         return None
 
-    def get(self, hashed, retry=3):
-        for _ in range(retry):
+    def get(self, hashed):
+        for _ in range(self.retry):
             result = self._fetch(hashed)
             if result is not None:
                 if hashlib.md5(result.encode()).hexdigest() == hashed:
@@ -75,9 +76,10 @@ def main():
                         'list of passwords to be used as a dictionary in a '
                         'hash cracker.')
     parser.add_argument('-t', '--timeout', type=int, default='3')
+    parser.add_argument('-r', '--retry', type=int, default='3')
     args = parser.parse_args()
-    online_hash_crackers = [Nitrxgen(timeout=args.timeout),
-                            CrackHash(timeout=args.timeout)]
+    online_hash_crackers = [Nitrxgen(args.timeout, args.retry),
+                            CrackHash(args.timeout, args.retry)]
     if args.submit:
         with open(args.target) as file:
             data = file.read().splitlines()
