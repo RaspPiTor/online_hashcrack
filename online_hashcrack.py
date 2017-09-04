@@ -21,6 +21,7 @@ class OnlineHashCrack():
             if result is not None:
                 if hashlib.md5(result.encode()).hexdigest() == hashed:
                     return result
+                return None
         return None
 
     def submit(self, hashed, result):
