@@ -6,7 +6,8 @@ import requests
 
 
 class OnlineHashCrack():
-    def __init__(self, timeout=3, retry=3, user_agent='PythonOnlineHashCracker'):
+    def __init__(self, timeout=3, retry=3,
+                 user_agent='PythonOnlineHashCracker'):
         self.retry = retry
         self.timeout = timeout
         self.session = requests.Session()
@@ -17,11 +18,18 @@ class OnlineHashCrack():
 
     def get(self, hashed):
         for _ in range(self.retry):
-            result = self._fetch(hashed)
-            if result is not None:
-                if hashlib.md5(result.encode()).hexdigest() == hashed:
-                    return result
-                return None
+            try:
+                result = self._fetch(hashed)
+                if result is not None:
+                    if hashlib.md5(result.encode()).hexdigest() == hashed:
+                        return result
+                    return None
+            except requests.exceptions.ReadTimeout as error:
+                print(self, 'timed out.')
+            except requests.exceptions.ConnectionError:
+                print(self, 'failed to connect.')
+            except Exception as error:
+                print(type(error), error)
         return None
 
     def submit(self, hashed, result):
@@ -37,12 +45,9 @@ class Nitrxgen(OnlineHashCrack):
         return 'Nitrxgen'
 
     def _fetch(self, hashed):
-        try:
-            r = self.session.get('https://www.nitrxgen.net/md5db/' + hashed,
-                                 timeout=self.timeout)
-            return r.text
-        except Exception as error:
-            print(error)
+        r = self.session.get('https://www.nitrxgen.net/md5db/' + hashed,
+                             timeout=self.timeout)
+        return r.text
 
 
 class CrackHash(OnlineHashCrack):
@@ -50,12 +55,9 @@ class CrackHash(OnlineHashCrack):
         return 'CrackHash'
 
     def _fetch(self, hashed):
-        try:
-            r = self.session.get('https://crackhash.com/api.php?hash=' + hashed,
-                                 timeout=self.timeout)
-            return r.text
-        except Exception as error:
-            print(error)
+        r = self.session.get('https://crackhash.com/api.php?hash=' + hashed,
+                             timeout=self.timeout)
+        return r.text
 
     def _submit(self, hashed, result):
         try:
@@ -64,7 +66,7 @@ class CrackHash(OnlineHashCrack):
                 % (hashed, result), timeout=self.timeout)
             print('Submitted:', hashed, result)
         except Exception as error:
-            print(error)
+            print(type(error), error)
 
 
 def main():
