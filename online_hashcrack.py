@@ -84,7 +84,7 @@ def main():
                         'like in a hashcat potfile')
     parser.add_argument('-d', '--dictionary', default='dict.txt', help='File '
                         'to store list of passwords to be used as a dictionary '
-                        'in a hash cracker, .')
+                        'in a hash cracker.')
     parser.add_argument('-t', '--timeout', type=int, default='15',
                         help='HTTP timeout(in seconds) to be used for the API '
                         'requests, default is 15')
