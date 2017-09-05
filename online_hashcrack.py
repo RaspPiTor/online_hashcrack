@@ -94,9 +94,11 @@ def main():
     if args.submit:
         with open(args.target) as file:
             data = file.read().splitlines()
-        for hashed, result in (i.split(':') for i in data if i.count(':') == 1):
+        data = [i.split(':') for i in data if i.count(':') == 1]
+        length = len(data)
+        for i, (hashed, result) in enumerate(data):
             if hashlib.md5(result.encode()).hexdigest() == hashed:
-                print(hashed, result)
+                print('%s/%s' % (i, length), hashed, result)
                 for cracker in online_hash_crackers:
                     cracker.submit(hashed, result)
     else:
