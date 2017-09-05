@@ -9,11 +9,13 @@ import requests
 
 class OnlineHashCrack():
     def __init__(self, timeout=3, retry=3,
-                 user_agent='PythonOnlineHashCracker'):
+                 user_agent='PythonOnlineHashCracker', proxy=None):
         self.retry = retry
         self.timeout = timeout
         self.session = requests.Session()
         self.session.headers['User-Agent'] = user_agent
+        if proxy:
+            self.session.proxies = {'http':proxy, 'https':proxy}
 
     def _fetch(self, _):
         pass
@@ -94,9 +96,12 @@ def main():
                         'requests, default is 15')
     parser.add_argument('-r', '--retry', type=int, default='3',
                         help='Number of retries to attempt for HTTP requests.')
+    parser.add_argument('-p', '--proxy', help='Use specified prpxy.')
     args = parser.parse_args()
-    online_hash_crackers = [Nitrxgen(args.timeout, args.retry),
-                            CrackHash(args.timeout, args.retry)]
+    online_hash_crackers = []
+    for cracker in Nitrxgen, CrackHash:
+        now = cracker(timeout=args.timeout, retry=args.retry, proxy=args.proxy)
+        online_hash_crackers.append(now)
     if args.submit:
         with open(args.target) as file:
             data = file.read().splitlines()
