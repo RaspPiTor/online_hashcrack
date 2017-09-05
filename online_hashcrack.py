@@ -103,7 +103,7 @@ def main():
                     cracker.submit(hashed, result)
     else:
         with open(args.target) as file:
-            hashes = set(file.read().splitlines())
+            hashes = set(i.strip() for i in file.read().splitlines())
         print('Starting')
         success = {}
         length = len(hashes)
