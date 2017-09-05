@@ -1,6 +1,8 @@
 import argparse
 import hashlib
 import random
+import codecs
+import re
 
 import requests
 
@@ -14,17 +16,16 @@ class OnlineHashCrack():
         self.session.headers['User-Agent'] = user_agent
 
     def _fetch(self, _):
-        return None
+        pass
 
     def get(self, hashed):
         self.session.cookies.clear_expired_cookies()
         for _ in range(self.retry):
             try:
-                result = self._fetch(hashed)
-                if result is not None:
+                for result in self._fetch(hashed):
                     if hashlib.md5(result.encode()).hexdigest() == hashed:
                         return result
-                    return None
+                return None
             except requests.exceptions.ReadTimeout as error:
                 print(self, 'timed out.')
             except requests.exceptions.ConnectionError:
@@ -49,7 +50,7 @@ class Nitrxgen(OnlineHashCrack):
     def _fetch(self, hashed):
         r = self.session.get('https://www.nitrxgen.net/md5db/' + hashed,
                              timeout=self.timeout)
-        return r.text
+        yield r.text
 
 
 class CrackHash(OnlineHashCrack):
@@ -59,7 +60,10 @@ class CrackHash(OnlineHashCrack):
     def _fetch(self, hashed):
         r = self.session.get('https://crackhash.com/api.php?hash=' + hashed,
                              timeout=self.timeout)
-        return r.text
+        yield r.text
+        match = re.fullmatch(r'\$HEX\[([a-f0-9]+)\]', r.text)
+        if match:
+            yield codecs.decode(match.group(1), 'hex').decode('utf-8')
 
     def _submit(self, hashed, result):
         try:
