@@ -17,6 +17,7 @@ class OnlineHashCrack():
         return None
 
     def get(self, hashed):
+        self.session.cookies.clear_expired_cookies()
         for _ in range(self.retry):
             try:
                 result = self._fetch(hashed)
@@ -33,6 +34,7 @@ class OnlineHashCrack():
         return None
 
     def submit(self, hashed, result):
+        self.session.cookies.clear_expired_cookies()
         if hashlib.md5(result.encode()).hexdigest() == hashed:
             self._submit(hashed, result)
 
@@ -83,9 +85,9 @@ def main():
     parser.add_argument('-d', '--dictionary', default='dict.txt', help='File '
                         'to store list of passwords to be used as a dictionary '
                         'in a hash cracker, .')
-    parser.add_argument('-t', '--timeout', type=int, default='3',
+    parser.add_argument('-t', '--timeout', type=int, default='15',
                         help='HTTP timeout(in seconds) to be used for the API '
-                        'requests, default is 3')
+                        'requests, default is 15')
     parser.add_argument('-r', '--retry', type=int, default='3',
                         help='Number of retries to attempt for HTTP requests.')
     args = parser.parse_args()
