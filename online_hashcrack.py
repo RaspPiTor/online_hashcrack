@@ -34,7 +34,6 @@ class OnlineHashCrack():
                 print(self, 'failed to connect.')
             except Exception as error:
                 print(type(error), error)
-        return None
 
     def submit(self, hashed, result):
         self.session.cookies.clear_expired_cookies()
