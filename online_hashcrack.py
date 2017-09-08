@@ -49,9 +49,8 @@ class Nitrxgen(OnlineHashCrack):
         return 'Nitrxgen'
 
     def _fetch(self, hashed):
-        r = self.session.get('https://www.nitrxgen.net/md5db/' + hashed,
+        yield self.session.get('https://www.nitrxgen.net/md5db/' + hashed,
                              timeout=self.timeout)
-        yield r.text
 
 
 class CrackHash(OnlineHashCrack):
@@ -70,7 +69,7 @@ class CrackHash(OnlineHashCrack):
 
     def _submit(self, hashed, result):
         try:
-            r = self.session.get(
+            self.session.get(
                 'https://crackhash.com/api.php?share=%s&text=%s'
                 % (hashed, result), timeout=self.timeout)
             print('Submitted:', hashed, result)
@@ -123,6 +122,7 @@ def main():
     online_hash_crackers = []
     for cracker in (Nitrxgen, MD5OVH, ):
         now = cracker(timeout=args.timeout, retry=args.retry, proxy=args.proxy,
+                      user_agent=args.useragent)
         online_hash_crackers.append(now)
     if args.submit:
         with open(args.target) as file:
