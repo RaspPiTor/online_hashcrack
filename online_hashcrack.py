@@ -115,6 +115,7 @@ def main():
     parser.add_argument('-p', '--proxy', help='Use specified prpxy.')
     args = parser.parse_args()
     online_hash_crackers = []
+    for cracker in (Nitrxgen, MD5OVH, ):
         now = cracker(timeout=args.timeout, retry=args.retry, proxy=args.proxy)
         online_hash_crackers.append(now)
     if args.submit:
