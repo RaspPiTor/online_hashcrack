@@ -116,7 +116,7 @@ def main():
                         'requests, default is 15')
     parser.add_argument('-r', '--retry', type=int, default='3',
                         help='Number of retries to attempt for HTTP requests.')
-    parser.add_argument('-p', '--proxy', help='Use specified prpxy.')
+    parser.add_argument('-p', '--proxy', help='Use specified proxy.')
     args = parser.parse_args()
     online_hash_crackers = []
     for cracker in (Nitrxgen, MD5OVH, ):
