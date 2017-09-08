@@ -15,7 +15,7 @@ class OnlineHashCrack():
         self.session = requests.Session()
         self.session.headers['User-Agent'] = user_agent
         if proxy:
-            self.session.proxies = {'http':proxy, 'https':proxy}
+            self.session.proxies = {'http': proxy, 'https': proxy}
 
     def _fetch(self, _):
         pass
