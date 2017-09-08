@@ -9,7 +9,7 @@ import requests
 
 class OnlineHashCrack():
     def __init__(self, timeout=3, retry=3,
-                 user_agent='PythonOnlineHashCracker', proxy=None):
+                 user_agent='OnlineHashCracker', proxy=None):
         self.retry = retry
         self.timeout = timeout
         self.session = requests.Session()
@@ -117,10 +117,12 @@ def main():
     parser.add_argument('-r', '--retry', type=int, default='3',
                         help='Number of retries to attempt for HTTP requests.')
     parser.add_argument('-p', '--proxy', help='Use specified proxy.')
+    parser.add_argument('-u', '--useragent', default='OnlineHashCracker',
+                        help='Useragent to use, default is OnlineHashCracker')
     args = parser.parse_args()
     online_hash_crackers = []
     for cracker in (Nitrxgen, MD5OVH, ):
-        now = cracker(timeout=args.timeout, retry=args.retry, proxy=args.proxy)
+        now = cracker(timeout=args.timeout, retry=args.retry, proxy=args.proxy,
         online_hash_crackers.append(now)
     if args.submit:
         with open(args.target) as file:
