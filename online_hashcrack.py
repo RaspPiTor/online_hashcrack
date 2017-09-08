@@ -76,6 +76,23 @@ class CrackHash(OnlineHashCrack):
             print(type(error), error)
 
 
+class MD5OVH(OnlineHashCrack):
+    regex = re.compile('<html><body>starting<br>'
+                       'Execution time :[0-9]+\.[0-9]+<br>'
+                       'value decrypted:(.+)<br>'
+                       'value decrypted in hexadecimal:([0-9a-f]+)<br>',
+                       re.DOTALL)
+    def __repr__(self):
+        return 'MD5OVH'
+    def _fetch(self, hashed):
+        r = self.session.get('https://www.md5.ovh/index.php?md5=' + hashed,
+                             timeout=self.timeout)
+        match = self.regex.match(r.text)
+        if match:
+            yield match.group(1)
+            yield codecs.decode(match.group(2), 'hex').decode('utf-8')
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('target', help='File containing md5 hashes.')
@@ -98,7 +115,6 @@ def main():
     parser.add_argument('-p', '--proxy', help='Use specified prpxy.')
     args = parser.parse_args()
     online_hash_crackers = []
-    for cracker in (Nitrxgen, ):
         now = cracker(timeout=args.timeout, retry=args.retry, proxy=args.proxy)
         online_hash_crackers.append(now)
     if args.submit:
