@@ -55,6 +55,7 @@ class Nitrxgen(OnlineHashCrack):
 
 
 class CrackHash(OnlineHashCrack):
+    regex = re.compile(r'\$HEX\[([a-f0-9]+)\]')
     def __repr__(self):
         return 'CrackHash'
 
@@ -62,7 +63,7 @@ class CrackHash(OnlineHashCrack):
         r = self.session.get('https://crackhash.com/api.php?hash=' + hashed,
                              timeout=self.timeout)
         yield r.text
-        match = re.fullmatch(r'\$HEX\[([a-f0-9]+)\]', r.text)
+        match = self.regex.fullmatch(r.text)
         if match:
             yield codecs.decode(match.group(1), 'hex').decode('utf-8')
 
