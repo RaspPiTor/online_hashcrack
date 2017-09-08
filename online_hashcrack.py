@@ -50,7 +50,7 @@ class Nitrxgen(OnlineHashCrack):
 
     def _fetch(self, hashed):
         yield self.session.get('https://www.nitrxgen.net/md5db/' + hashed,
-                             timeout=self.timeout)
+                               timeout=self.timeout)
 
 
 class CrackHash(OnlineHashCrack):
