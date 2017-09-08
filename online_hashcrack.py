@@ -56,6 +56,7 @@ class Nitrxgen(OnlineHashCrack):
 
 class CrackHash(OnlineHashCrack):
     regex = re.compile(r'\$HEX\[([a-f0-9]+)\]')
+
     def __repr__(self):
         return 'CrackHash'
 
@@ -79,12 +80,14 @@ class CrackHash(OnlineHashCrack):
 
 class MD5OVH(OnlineHashCrack):
     regex = re.compile('<html><body>starting<br>'
-                       'Execution time :[0-9]+\.[0-9]+<br>'
+                       r'Execution time :[0-9]+\.[0-9]+<br>'
                        'value decrypted:(.+)<br>'
                        'value decrypted in hexadecimal:([0-9a-f]+)<br>',
                        re.DOTALL)
+
     def __repr__(self):
         return 'MD5OVH'
+
     def _fetch(self, hashed):
         r = self.session.get('https://www.md5.ovh/index.php?md5=' + hashed,
                              timeout=self.timeout)
