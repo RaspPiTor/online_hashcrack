@@ -145,7 +145,7 @@ def main():
     if args.submit:
         with open(args.target, 'rb') as file:
             data = file.read().decode('utf-8', 'ignore').splitlines()
-        data = [i.split(':') for i in data if i.count(':') == 1]
+        data = [i.split(':') for i in set(data) if i.count(':') == 1]
         length = len(data)
         for i, (hashed, result) in enumerate(data):
             if hashlib.md5(result.encode()).hexdigest() == hashed:
