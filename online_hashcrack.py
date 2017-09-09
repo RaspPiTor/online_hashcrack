@@ -77,7 +77,6 @@ class CrackHash(OnlineHashCrack):
     def _submit(self, hashed, result):
         self.session.get('https://crackhash.com/api.php?share=%s&text=%s'
                          % (hashed, result), timeout=self.timeout)
-        print('Submitted:', hashed, result)
 
 
 class MD5OVH(OnlineHashCrack):
@@ -113,7 +112,6 @@ class MD5EncryptionDecryption(OnlineHashCrack):
     def _submit(self, hashed, result):
         self.session.post('http://md5encryption.com/', timeout=self.timeout,
                           data={'submit':'Encrypt+It!', 'word':result})
-        print('Submitted:', hashed, result)
 
 
 def main():
@@ -151,7 +149,10 @@ def main():
         length = len(data)
         for i, (hashed, result) in enumerate(data):
             if hashlib.md5(result.encode()).hexdigest() == hashed:
-                print('%s/%s' % (i, length), hashed, result)
+                try:
+                    print('%s/%s' % (i, length), hashed, result)
+                except UnicodeEncodeError:
+                    print('%s/%s' % (i, length), hashed, result.encode('utf-8'))
                 for cracker in online_hash_crackers:
                     cracker.submit(hashed, result)
     else:
