@@ -114,6 +114,19 @@ class MD5EncryptionDecryption(OnlineHashCrack):
                           data={'submit':'Encrypt+It!', 'word':result})
 
 
+class MD5DB(OnlineHashCrack):
+    def __repr__(self):
+        return 'MD5DB'
+
+    def _fetch(self, hashed):
+        yield self.session.get('https://md5db.net/api/' + hashed,
+                               timeout=self.timeout).text
+
+    def _submit(self, hashed, result):
+        self.session.post('https://md5db.net/encrypt/', timeout=self.timeout,
+                          data={'submit':'Encrypt+words', 'words':result})
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('target', help='File containing md5 hashes.')
@@ -138,7 +151,7 @@ def main():
                         help='Useragent to use, default is OnlineHashCracker')
     args = parser.parse_args()
     online_hash_crackers = []
-    for cracker in (Nitrxgen, MD5OVH, MD5EncryptionDecryption, ):
+    for cracker in (Nitrxgen, MD5OVH, MD5EncryptionDecryption, MD5DB, ):
         now = cracker(timeout=args.timeout, retry=args.retry, proxy=args.proxy,
                       user_agent=args.useragent)
         online_hash_crackers.append(now)
