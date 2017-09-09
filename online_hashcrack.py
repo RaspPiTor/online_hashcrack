@@ -146,8 +146,8 @@ def main():
                       user_agent=args.useragent)
         online_hash_crackers.append(now)
     if args.submit:
-        with open(args.target) as file:
-            data = file.read().splitlines()
+        with open(args.target, 'rb') as file:
+            data = file.read().decode('utf-8', 'ignore').splitlines()
         data = [i.split(':') for i in data if i.count(':') == 1]
         length = len(data)
         for i, (hashed, result) in enumerate(data):
