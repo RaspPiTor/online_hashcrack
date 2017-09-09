@@ -38,7 +38,14 @@ class OnlineHashCrack():
     def submit(self, hashed, result):
         self.session.cookies.clear_expired_cookies()
         if hashlib.md5(result.encode()).hexdigest() == hashed:
-            self._submit(hashed, result)
+            try:
+                self._submit(hashed, result)
+            except requests.exceptions.ReadTimeout as error:
+                print(self, 'timed out.')
+            except requests.exceptions.ConnectionError:
+                print(self, 'failed to connect.')
+            except Exception as error:
+                print(type(error), error)
 
     def _submit(self, hashed, result):
         pass
@@ -68,13 +75,9 @@ class CrackHash(OnlineHashCrack):
             yield codecs.decode(match.group(1), 'hex').decode('utf-8')
 
     def _submit(self, hashed, result):
-        try:
-            self.session.get(
-                'https://crackhash.com/api.php?share=%s&text=%s'
-                % (hashed, result), timeout=self.timeout)
-            print('Submitted:', hashed, result)
-        except Exception as error:
-            print(type(error), error)
+        self.session.get('https://crackhash.com/api.php?share=%s&text=%s'
+                         % (hashed, result), timeout=self.timeout)
+        print('Submitted:', hashed, result)
 
 
 class MD5OVH(OnlineHashCrack):
@@ -108,13 +111,9 @@ class MD5EncryptionDecryption(OnlineHashCrack):
         if match:
             yield match.group(1)
     def _submit(self, hashed, result):
-        try:
-            r = self.session.post('http://md5encryption.com/',
-                                  timeout=self.timeout,
+        self.session.post('http://md5encryption.com/', timeout=self.timeout,
                           data={'submit':'Encrypt+It!', 'word':result})
-            print('Submitted:', hashed, result)
-        except Exception as error:
-            print(type(error), error)
+        print('Submitted:', hashed, result)
 
 
 def main():
