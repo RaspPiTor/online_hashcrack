@@ -96,6 +96,27 @@ class MD5OVH(OnlineHashCrack):
             yield codecs.decode(match.group(2), 'hex').decode('utf-8')
 
 
+class MD5EncryptionDecryption(OnlineHashCrack):
+    regex = re.compile('Decrypted Text: </b>(.*)</font>')
+    def __repr__(self):
+        return 'MD5EncryptionDecryption'
+
+    def _fetch(self, hashed):
+        r = self.session.post('http://md5decryption.com/', timeout=self.timeout,
+                          data={'submit':'Decrypt+It!', 'hash':hashed})
+        match = self.regex.search(r.text)
+        if match:
+            yield match.group(1)
+    def _submit(self, hashed, result):
+        try:
+            r = self.session.post('http://md5encryption.com/',
+                                  timeout=self.timeout,
+                          data={'submit':'Encrypt+It!', 'word':result})
+            print('Submitted:', hashed, result)
+        except Exception as error:
+            print(type(error), error)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('target', help='File containing md5 hashes.')
@@ -120,7 +141,7 @@ def main():
                         help='Useragent to use, default is OnlineHashCracker')
     args = parser.parse_args()
     online_hash_crackers = []
-    for cracker in (Nitrxgen, MD5OVH, ):
+    for cracker in (Nitrxgen, MD5OVH, MD5EncryptionDecryption, ):
         now = cracker(timeout=args.timeout, retry=args.retry, proxy=args.proxy,
                       user_agent=args.useragent)
         online_hash_crackers.append(now)
