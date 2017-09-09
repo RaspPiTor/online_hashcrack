@@ -150,9 +150,10 @@ def main():
         for i, (hashed, result) in enumerate(data):
             if hashlib.md5(result.encode()).hexdigest() == hashed:
                 try:
-                    print('%s/%s' % (i, length), hashed, result)
+                    print('%s/%s %s %s' % (i, length, hashed, result))
                 except UnicodeEncodeError:
-                    print('%s/%s' % (i, length), hashed, result.encode('utf-8'))
+                    print('%s/%s %s %s' % (i, length, hashed,
+                                           result.encode('utf-8')))
                 for cracker in online_hash_crackers:
                     cracker.submit(hashed, result)
     else:
