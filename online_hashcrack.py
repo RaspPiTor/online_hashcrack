@@ -165,26 +165,32 @@ def main():
         try:
             for i, hashed in enumerate(hashes):
                 random.shuffle(online_hash_crackers)
-                print('%s/%s' % (i, length), end=' ')
                 for cracker in online_hash_crackers:
                     result = cracker.get(hashed)
                     if result is not None:
                         success[hashed] = result
-                        print('Success:', cracker, hashed, result)
+                        try:
+                            print('%s/%s Success: %s %s %s' %
+                                  (i, length, cracker, hashed, result))
+                        except UnicodeEncodeError:
+                            print('%s/%s Success: %s %s %s' %
+                                  (i, length, cracker, hashed,
+                                   result.encode('utf-8', 'ignore')))
                         for cracker2 in online_hash_crackers:
                             if cracker != cracker2:
                                 cracker2.submit(hashed, result)
                         break
                 if hashed not in success:
-                    print('Failed:', hashed)
+                    print('%s/%s Failed: %s' % (i, length, hashed))
         except KeyboardInterrupt:
             print('KeyboardInterrupt')
-        with open(args.found, 'w') as file:
-            file.write('\n'.join(':'.join((i, success[i])) for i in success))
+        with open(args.found, 'wb') as file:
+            file.write(b'\n'.join(b':'.join((i.encode(), success[i].encode()))
+                                  for i in success))
         with open(args.left, 'w') as file:
             file.write('\n'.join(i for i in hashes if i not in success))
-        with open(args.dictionary, 'w') as file:
-            file.write('\n'.join(success[i] for i in success))
+        with open(args.dictionary, 'wb') as file:
+            file.write(b'\n'.join(success[i].encode() for i in success))
 
 
 if __name__ == '__main__':
