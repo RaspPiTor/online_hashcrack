@@ -52,12 +52,18 @@ class OnlineHashCrack():
 
 
 class Nitrxgen(OnlineHashCrack):
+    regex = re.compile(r'\$HEX\[([a-f0-9]+)\]')
+    
     def __repr__(self):
         return 'Nitrxgen'
 
     def _fetch(self, hashed):
-        yield self.session.get('https://www.nitrxgen.net/md5db/' + hashed,
-                               timeout=self.timeout).text
+        r = self.session.get('https://www.nitrxgen.net/md5db/' + hashed,
+                               timeout=self.timeout)
+        yield r.text
+        match = self.regex.fullmatch(r.text)
+        if match:
+            yield codecs.decode(match.group(1), 'hex').decode('utf-8')
 
 
 class CrackHash(OnlineHashCrack):
