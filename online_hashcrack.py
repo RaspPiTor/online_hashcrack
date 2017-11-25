@@ -27,6 +27,8 @@ class OnlineHashCrack():
                 for result in self._fetch(hashed):
                     if hashlib.md5(result.encode()).hexdigest() == hashed:
                         return result
+                    elif result:
+                        print('ERROR', result)
                 return None
             except requests.exceptions.ReadTimeout as error:
                 print(self, 'timed out.')
@@ -161,19 +163,20 @@ def main():
         now = cracker(timeout=args.timeout, retry=args.retry, proxy=args.proxy,
                       user_agent=args.useragent)
         online_hash_crackers.append(now)
+    random.shuffle(online_hash_crackers)
     if args.submit:
         with open(args.target, 'rb') as file:
             data = file.read().decode('utf-8', 'ignore').splitlines()
         data = [i.split(':') for i in set(data) if i.count(':') == 1]
         length = len(data)
-        for i, (hashed, result) in enumerate(data):
-            if hashlib.md5(result.encode()).hexdigest() == hashed:
-                try:
-                    print('%s/%s %s %s' % (i, length, hashed, result))
-                except UnicodeEncodeError:
-                    print('%s/%s %s %s' % (i, length, hashed,
-                                           result.encode('utf-8')))
-                for cracker in online_hash_crackers:
+        for cracker in online_hash_crackers:
+            for i, (hashed, result) in enumerate(data):
+                if hashlib.md5(result.encode()).hexdigest() == hashed:
+                    try:
+                        print('%s/%s %s %s' % (i, length, hashed, result))
+                    except UnicodeEncodeError:
+                        print('%s/%s %s %s' % (i, length, hashed,
+                                               result.encode('utf-8')))
                     cracker.submit(hashed, result)
     else:
         with open(args.target) as file:
@@ -182,11 +185,13 @@ def main():
         success = {}
         length = len(hashes)
         try:
-            for i, hashed in enumerate(hashes):
-                random.shuffle(online_hash_crackers)
-                for cracker in online_hash_crackers:
+            for cracker in online_hash_crackers:
+                print('Starting', cracker)
+                for i, hashed in enumerate(hashes.copy()):
+                    random.shuffle(online_hash_crackers)
                     result = cracker.get(hashed)
                     if result is not None:
+                        hashes.remove(hashed)
                         success[hashed] = result
                         try:
                             print('%s/%s Success: %s %s %s' %
@@ -198,9 +203,9 @@ def main():
                         for cracker2 in online_hash_crackers:
                             if cracker != cracker2:
                                 cracker2.submit(hashed, result)
-                        break
-                if hashed not in success:
-                    print('%s/%s Failed: %s' % (i, length, hashed))
+                    else:
+                        print('%s/%s Failed: %s %s' %
+                                  (i, length, cracker, hashed))
         except KeyboardInterrupt:
             print('KeyboardInterrupt')
         with open(args.found, 'wb') as file:
