@@ -175,7 +175,7 @@ def main():
             for i, (hashed, result) in enumerate(data):
                 if hashlib.md5(result.encode()).hexdigest() == hashed:
                     try:
-                        print('%s/%s  %s %s %s' % (i, length, cracker, hashed,
+                        print('%s/%s %s %s %s' % (i, length, cracker, hashed,
                                                    result))
                     except UnicodeEncodeError:
                         print('%s/%s %s %s %s' % (i, length, hashed, cracker,
