@@ -70,6 +70,7 @@ class Nitrxgen(OnlineHashCrack):
 
 class CrackHash(OnlineHashCrack):
     regex = re.compile(r'\$HEX\[([a-f0-9]+)\]')
+    # API is currently under maintanace
 
     def __repr__(self):
         return 'CrackHash'
@@ -93,6 +94,7 @@ class MD5OVH(OnlineHashCrack):
                        'value decrypted:(.+)<br>'
                        'value decrypted in hexadecimal:([0-9a-f]+)<br>',
                        re.DOTALL)
+    # Cloudflare says website is down
 
     def __repr__(self):
         return 'MD5OVH'
@@ -159,7 +161,7 @@ def main():
                         help='Useragent to use, default is OnlineHashCracker')
     args = parser.parse_args()
     online_hash_crackers = []
-    for cracker in (Nitrxgen, MD5OVH, MD5EncryptionDecryption, MD5DB, ):
+    for cracker in (Nitrxgen, MD5EncryptionDecryption, MD5DB, ):
         now = cracker(timeout=args.timeout, retry=args.retry, proxy=args.proxy,
                       user_agent=args.useragent)
         online_hash_crackers.append(now)
@@ -173,9 +175,10 @@ def main():
             for i, (hashed, result) in enumerate(data):
                 if hashlib.md5(result.encode()).hexdigest() == hashed:
                     try:
-                        print('%s/%s %s %s' % (i, length, hashed, result))
+                        print('%s/%s  %s %s %s' % (i, length, cracker, hashed,
+                                                   result))
                     except UnicodeEncodeError:
-                        print('%s/%s %s %s' % (i, length, hashed,
+                        print('%s/%s %s %s %s' % (i, length, hashed, cracker
                                                result.encode('utf-8')))
                     cracker.submit(hashed, result)
     else:
