@@ -178,7 +178,7 @@ def main():
                         print('%s/%s  %s %s %s' % (i, length, cracker, hashed,
                                                    result))
                     except UnicodeEncodeError:
-                        print('%s/%s %s %s %s' % (i, length, hashed, cracker
+                        print('%s/%s %s %s %s' % (i, length, hashed, cracker,
                                                result.encode('utf-8')))
                     cracker.submit(hashed, result)
     else:
